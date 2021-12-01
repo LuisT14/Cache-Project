@@ -63,16 +63,3 @@ class Main {
         } while (!command.equals("quit"));
     }
 }
-
-// bruh bruh so wanna make it object oriented to the max?
-// how so 
-// templates for each one of policies/stuff? althout some are simple, wait give me a couple of min
-// templates scare me but if you think it'll make some of the stuff easier then go ahead
-// looking at the req, most likely not. it will be simple.
-// Hmm, im not sure how to approach this, i think it will build as we build 
-// I saw that we had to implement everything that's in the menu i already made but that's about it for now. so we can start with that because that doesn't look that bad
-// I FORGOT about doxygen. F, i think for that we must document as we go
-// what does that even mean. i didn't understand that stuff lol
-// hmm, i hope i dont kill anything
-// explain
-// no idea i tried to download packages, idk what does
