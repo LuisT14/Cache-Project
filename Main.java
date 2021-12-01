@@ -1,5 +1,10 @@
 import java.util.Scanner;
 
+/**
+ * Cache Project CSCE 312
+ * @author Luis Trejo
+ * @author Jared Miscisin <- that's me
+*/
 class Main { 
     public static void main(String[] args) {
         Scanner userInput = new Scanner(System.in);
