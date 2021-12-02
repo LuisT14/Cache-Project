@@ -34,7 +34,7 @@ public class CacheConfigObj {
         System.out.print("data block size: ");
         blockBytes = theSetup.nextInt();
         System.out.print("associativity: ");
-        associativty = theSetup.nextInt();
+        associativity = theSetup.nextInt();
         System.out.print("replacement policy: ");
         replacementPolicy = theSetup.nextInt();
         System.out.print("write hit policy: ");

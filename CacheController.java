@@ -1,3 +1,10 @@
+import java.io.File; 
+import java.io.FileNotFoundException;  
+import java.util.Scanner;
+import java.io.FileInputStream;  
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 /**
  * Cache Controller does all the actions It uses the {@link CacheConfigObj} to
  * initilize all values
@@ -11,12 +18,15 @@ public class CacheController {
      */
     private class internalCache {
         public class CacheLine {
+            public CacheLine(int num){
+              Block = new String[num];
+            }
             public boolean validBit;
             public String tag;
-            public String[] Block = new String[B];
+            public String[] Block;
         }
 
-        public CacheLine[] Set[][];
+        public CacheLine[][] Set;
 
         /**
          * Constructor for Internal Cache
@@ -29,7 +39,7 @@ public class CacheController {
             Set = new CacheLine[S][E];
             for(int i = 0; i < S; i++){
               for(int j = 0; j < E; j++){
-                Set[i][j] = new 
+                Set[i][j] = new CacheLine(B);
               }
             }
         }
@@ -39,15 +49,15 @@ public class CacheController {
      * Enum for different options
      */
     private enum ReplacmentOption {
-        NONE(0), RANDOM_REPLACEMENT(1), LEAST_RECENTLY_USE(2)
+        NONE, RANDOM_REPLACEMENT, LEAST_RECENTLY_USE
     }
 
     private enum WriteHitOption {
-        NONE(0), WRITE_THROUGH(1), WRITE_BACK(2)
+        NONE, WRITE_THROUGH, WRITE_BACK
     }
 
     private enum WriteMissOption {
-        NONE(0), WRITE_ALLOCATE(1), NO_WRITE_ALLOCATE(2)
+        NONE, WRITE_ALLOCATE, NO_WRITE_ALLOCATE
     }
 
     // Various Variables
@@ -71,12 +81,12 @@ public class CacheController {
      */
     public CacheController(CacheConfigObj ccfig, String ramFile) {
         // Save Config to vars
-        cacheSize = ccfig.GetCacheByte();
-        dataBlockSize = ccifg.GetBlockBytes();
+        cacheSize = ccfig.GetCacheSizeBytes();
+        dataBlockSize = ccfig.GetBlockBytes();
         associativity = ccfig.GetAssociativity();
-        replacementPolicy = ReplacementOption.valueOf(ccfig.GetReplacementPolicy());
-        writeHitPolicy = WriteHitOption.valueOf(ccfig.GetWriteHitPolicy());
-        writeMissPolicy = WriteMissOption.valueOf(ccfig.GetWriteMissPolicy());
+        replacementPolicy = ReplacmentOption.values()[ccfig.GetReplacementPolicy()];
+        writeHitPolicy = WriteHitOption.values()[(ccfig.GetWriteHitPolicy())];
+        writeMissPolicy = WriteMissOption.values()[(ccfig.GetWriteMissPolicy())];
         ramSize = ccfig.GetRamSize();
 
         // Some Setup :)
@@ -94,19 +104,27 @@ public class CacheController {
      * @param String ramLocation the name and location of the file for the ram
      */
     public void parseRam(String ramLocation) {
-        FileInputStream in = null;
-        in = new FileInputStream(ramLocation);
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        try{
+            FileInputStream in = null;
+            in = new FileInputStream(ramLocation);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-        String line;
-        int i = 0;
-        while ((line = br.readLine()) != null) {
-            ramData[i] = line;
-            i++;
+            String line;
+            int i = 0;
+            try{
+                while ((line = br.readLine()) != null) {
+                    ramData[i] = line;
+                    i++;
+                }
+            }catch(Exception e){
+                System.out.println("An error occured while reading the file!");
+            }
+            
+            System.out.println("RAM successfully initialized!");
+            in.close();
+        }catch(Exception e){
+            System.out.println("File could not be read!");
         }
-
-        System.out.println("RAM successfully initialized!");
-        in.close();
     }
 
     /**
