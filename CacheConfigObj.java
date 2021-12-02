@@ -55,7 +55,7 @@ public class CacheConfigObj {
             if (splitoff[0].equals("ram-init")) {
                 int s1 = Integer.parseInt(splitoff[1].substring(2), 16);
                 int s2 = Integer.parseInt(splitoff[2].substring(2), 16);
-                RAM = s2 - s1;
+                RAM = (s2 - s1)+1;
                 System.out.println("RAM successfully initialized!");
             }
         }

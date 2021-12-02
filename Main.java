@@ -14,8 +14,8 @@ class Main {
     boolean hasfile = false;
 
     // Command line input
-    System.out.println("*** Welcome to the cache simulator ***");
-    System.out.println("initialize the RAM:");
+    //System.out.println("*** Welcome to the cache simulator ***");
+    //System.out.println("initialize the RAM:");
     String filename = "";
     if (args.length > 0) {
       filename = args[0];
@@ -57,13 +57,13 @@ class Main {
             System.out.println("Exiting program");
             break;
           case "memory-dump":
-            System.out.println("temporary memory-dump");
+            CC.MemoryDump();
             break;
           case "cache-dump":
             System.out.println("temporary cache-dump");
             break;
           case "memory-view":
-            System.out.println("temporary memory-view");
+            CC.MemoryView();
             break;
           case "cache-view":
             System.out.println("temporary cache-view");

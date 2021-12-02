@@ -149,4 +149,49 @@ public class CacheController {
     public void CacheWrite(String address, String data) {
 
     }
+
+    /**
+     * Memory View
+     * <p>
+     * Takes a peek at ram and displays along with size
+    */
+    public void MemoryView(){
+      System.out.println("memory-view");
+      System.out.println("memory_size:" + ramSize);
+      System.out.print("memory_content:");
+      for(int i = 0; i < ramData.length; i++){
+        if(i % 8 == 0){
+          System.out.print("\n"+ Int2Hex(i) + " " + ramData[i] + " ");
+          continue;
+        }
+        System.out.print(ramData[i] + " ");
+      } 
+      System.out.println();
+    }
+
+    /**
+     * Memory Dump
+     * <p>
+     * Dump raw contents of memory stored in the object
+    */
+    public void MemoryDump(){
+      System.out.print("memory-dump");
+      for(int i = 0; i < ramData.length; i++){
+        System.out.println(ramData[i]);
+      } 
+    }
+
+    /**
+     * Decimal to Hex
+     * Accepts an integer and returns a hex in string from 
+     * @param decimal Int
+     * @return String Hex
+    */
+    static String Int2Hex(int num){
+      String h = Integer.toHexString(num);
+      if(h.length() < 2){
+        return "0x0"+h;
+      }
+      return "0x"+h;
+    }
 }
