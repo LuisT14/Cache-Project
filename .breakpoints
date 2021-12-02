@@ -1,0 +1,20 @@
+{
+  "files": {
+    "Cache.java": [
+      {
+        "id": "80f266de-f894-4f7f-9332-737c0d4669f7",
+        "line": 9,
+        "version": 141,
+        "index": 71
+      }
+    ],
+    "CacheController.java": [
+      {
+        "id": "700aa136-41cd-430c-83c5-7b6559770bba",
+        "line": 1,
+        "version": 4217,
+        "index": 0
+      }
+    ]
+  }
+}
