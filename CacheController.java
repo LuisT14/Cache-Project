@@ -135,7 +135,7 @@ public class CacheController {
      * @param String Memory adress in hex
      */
     public void CacheRead(String hexAddress) {
-
+      
     }
 
     /**
@@ -151,6 +151,31 @@ public class CacheController {
     }
 
     /**
+     * Cache Flush
+     * <p>
+     * function makes the cache empty
+     */
+    public void CacheFlush() {
+        int S = theCache.Set.length;
+        int E = theCache.Set[0].length;
+        int B = theCache.Set[0][0].Block.length;
+        int tag_length = theCache.Set[0][0].tag.length();
+        int block_length = theCache.Set[0][0].Block[0].length();
+        for (int i=0; i<S; i++) {
+            for (int j=0; i<E; j++) {
+                theCache.Set[i][j].tag = "";
+                for (int k=0; k<tag_length; k++) theCache.Set[i][j].tag += "0";
+                theCache.Set[i][j].validBit = false;
+                for (int l=0; l<B; l++) {
+                    theCache.Set[i][j].Block[l] = "";
+                    for (int m=0; m<block_length; m++) theCache.Set[i][j].Block[l] += "0";
+                }
+            }
+        }
+        System.out.println("cache-cleared");
+    }
+
+    /**
      * Memory View
      * <p>
      * Takes a peek at ram and displays along with size
@@ -161,8 +186,7 @@ public class CacheController {
       System.out.print("memory_content:");
       for(int i = 0; i < ramData.length; i++){
         if(i % 8 == 0){
-          System.out.print("\n"+ Int2Hex(i) + " " + ramData[i] + " ");
-          continue;
+          System.out.print("\n"+ Int2Hex(i) + " ");
         }
         System.out.print(ramData[i] + " ");
       } 

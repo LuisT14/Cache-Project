@@ -14,8 +14,6 @@ class Main {
     boolean hasfile = false;
 
     // Command line input
-    //System.out.println("*** Welcome to the cache simulator ***");
-    //System.out.println("initialize the RAM:");
     String filename = "";
     if (args.length > 0) {
       filename = args[0];
