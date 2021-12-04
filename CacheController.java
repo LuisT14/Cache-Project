@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.io.FileInputStream;  
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.Math;
 
 /**
  * Cache Controller does all the actions It uses the {@link CacheConfigObj} to
@@ -22,6 +23,7 @@ public class CacheController {
               Block = new String[num];
             }
             public boolean validBit;
+            public boolean dirtyBit; // new
             public String tag;
             public String[] Block;
         }
@@ -66,6 +68,9 @@ public class CacheController {
     private int associativity;
     private int ramSize;
     private int setSize;
+    private int tagBits;
+    private int blockOffsetBits;
+    private int setIndex;
     private ReplacmentOption replacementPolicy;
     private WriteHitOption writeHitPolicy;
     private WriteMissOption writeMissPolicy;
@@ -91,6 +96,9 @@ public class CacheController {
 
         // Some Setup :)
         setSize = cacheSize / (dataBlockSize * associativity);
+        setIndex = (int)(Math.log(associativity)/Math.log(2));
+        blockOffsetBits = (int)( Math.log(dataBlockSize) / Math.log(2));
+        tagBits = ((int)(Math.log(ramSize)/Math.log(2))) - (setIndex + blockOffsetBits);
         ramData = new String[ramSize];
         theCache = new internalCache(setSize, associativity, dataBlockSize);
         parseRam(ramFile);
@@ -135,7 +143,22 @@ public class CacheController {
      * @param String Memory adress in hex
      */
     public void CacheRead(String hexAddress) {
+      int addressInt = Integer.parseInt(hexAddress.substring(2), 16);
+      String addressBin = Int2Bin(addressInt);
+      String tagS = addressBin.substring(0,tagBits);
+      String setS = addressBin.substring(tagBits, tagBits+setIndex);
+      String blockS = addressBin.substring(tagBits+setIndex);
+      int setI = Integer.parseInt(tagS,2);
+
+
+      for(int i =0; i< dataBlockSize; i++){
+        theCache[setI][];
+      }
+
+      System.out.println("Set:"+Integer.parseInt(setS, 2));
+      System.out.println("tag:"+hexAddress(Integer.parseInt(tagS,2), false));
       
+
     }
 
     /**
@@ -147,7 +170,7 @@ public class CacheController {
      * @param String data (1 byte)
      */
     public void CacheWrite(String address, String data) {
-
+      
     }
 
     /**
@@ -163,9 +186,10 @@ public class CacheController {
         int block_length = theCache.Set[0][0].Block[0].length();
         for (int i=0; i<S; i++) {
             for (int j=0; i<E; j++) {
+                theCache.Set[i][j].validBit = false;
+                theCache.Set[i][j].dirtyBit = false;
                 theCache.Set[i][j].tag = "";
                 for (int k=0; k<tag_length; k++) theCache.Set[i][j].tag += "0";
-                theCache.Set[i][j].validBit = false;
                 for (int l=0; l<B; l++) {
                     theCache.Set[i][j].Block[l] = "";
                     for (int m=0; m<block_length; m++) theCache.Set[i][j].Block[l] += "0";
@@ -173,6 +197,26 @@ public class CacheController {
             }
         }
         System.out.println("cache-cleared");
+    }
+
+    /**
+     * Cache View
+     * <p>
+     *
+    */
+    public void CacheView() {
+        // just some partial work
+        System.out.println("cache_size:" + cacheSize);
+        System.out.println("data_block_size:" + dataBlockSize);
+        System.out.println("associativity:" + associativity);
+        System.out.println("replacement_policy:");
+        System.out.println("write_hit_policy:");
+        System.out.println("write_miss_policy:");
+        System.out.println("number_of_cache_hits:");
+        System.out.println("number_of_cache_misses:");
+        System.out.println("cache_content:");
+
+        // needs dirty bit?
     }
 
     /**
@@ -207,15 +251,39 @@ public class CacheController {
 
     /**
      * Decimal to Hex
+     * <p>
      * Accepts an integer and returns a hex in string from 
      * @param decimal Int
      * @return String Hex
     */
     static String Int2Hex(int num){
+      return Int2Hex(num, true);
+    }
+
+    /**
+     * Decimal to Hex
+     * <p>
+     * Accepts an integer and returns a hex in string from 
+     * @param decimal Int
+     * @param boolean add "0x" to the beginning
+     * @return String Hex
+    */
+    static String Int2Hex(int num,boolean id){
       String h = Integer.toHexString(num);
       if(h.length() < 2){
-        return "0x0"+h;
+        return ((id) ? "0x0" : "")+h;
       }
-      return "0x"+h;
+      return ((id) ? "0x" : "")+h;
+    }
+
+    /**
+     * Decimal to Binary
+     * <p>
+     * Accepts an Integer and returns a binary string in the right format 
+     * @param num Int
+     * @return binary String 
+    */
+    static String Int2Bin(int num){
+      return String.format("%8s", Integer.toBinaryString(num)).replace(' ', '0');
     }
 }

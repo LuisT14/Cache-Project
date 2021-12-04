@@ -48,7 +48,7 @@ class Main {
         System.out.println("8. quit");
         System.out.println("****************************");
 
-        command = userInput.next();
+        command = userInput.nextLine();
 
         switch (command) {
           case "quit":
@@ -73,7 +73,7 @@ class Main {
             if (command.length() >= 11) {
               command_substring = command.substring(0, 11);
               if (command_substring.equals("cache-read ")) {
-                System.out.println("temporary cache-read");
+                CC.CacheRead(command.substring(11));
                 break;
               } else if (command_substring.equals("cache-write")) {
                 System.out.println("temporary cache-write");
