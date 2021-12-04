@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.Math;
+import java.util.Random;
+import java.util.LinkedList;
 
 /**
  * Cache Controller does all the actions It uses the {@link CacheConfigObj} to
@@ -21,6 +23,9 @@ public class CacheController {
         public class CacheLine {
             public CacheLine(int num){
               Block = new String[num];
+              validBit =false;
+              dirtyBit = false;
+              tag = "";
             }
             public boolean validBit;
             public boolean dirtyBit; // new
@@ -29,6 +34,7 @@ public class CacheController {
         }
 
         public CacheLine[][] Set;
+        public LinkedList<Integer>[] order;
 
         /**
          * Constructor for Internal Cache
@@ -37,11 +43,17 @@ public class CacheController {
          * @param E number of Lines
          * @param B number of Block (bytes)
          */
-        public internalCache(int S, int E, int B) {
+        public internalCache(int S, int E, int B, ReplacmentOption r) {
             Set = new CacheLine[S][E];
             for(int i = 0; i < S; i++){
               for(int j = 0; j < E; j++){
                 Set[i][j] = new CacheLine(B);
+              }
+            }
+            if(r == ReplacmentOption.LEAST_RECENTLY_USE){
+              order = new LinkedList[S];
+              for(int i =0;i < S; i++){
+                order[i] = new LinkedList<Integer>();
               }
             }
         }
@@ -76,6 +88,7 @@ public class CacheController {
     private WriteMissOption writeMissPolicy;
     private internalCache theCache;
     private String[] ramData;
+    Random randGen = new Random(123123123);
 
     /**
      * Constructor for CacheController
@@ -100,7 +113,7 @@ public class CacheController {
         blockOffsetBits = (int)( Math.log(dataBlockSize) / Math.log(2));
         tagBits = ((int)(Math.log(ramSize)/Math.log(2))) - (setIndex + blockOffsetBits);
         ramData = new String[ramSize];
-        theCache = new internalCache(setSize, associativity, dataBlockSize);
+        theCache = new internalCache(setSize, associativity, dataBlockSize, replacementPolicy);
         parseRam(ramFile);
     }
 
@@ -148,15 +161,29 @@ public class CacheController {
       String tagS = addressBin.substring(0,tagBits);
       String setS = addressBin.substring(tagBits, tagBits+setIndex);
       String blockS = addressBin.substring(tagBits+setIndex);
-      int setI = Integer.parseInt(tagS,2);
+      int setI = Integer.parseInt(setS,2);
+      String tagH = Int2Hex(Integer.parseInt(tagS,2),false);
+      int offset = Integer.parseInt(blockS,2);
+
+      System.out.println("set:"+setI);
+      System.out.println("tag:"+tagH);
 
 
-      for(int i =0; i< dataBlockSize; i++){
-        theCache[setI][];
+      for(int i =0; i< associativity; i++){
+        if(tagH.equals(theCache.Set[setI][i].tag)){
+          System.out.println("write_hit: yes");
+          System.out.println("eviction_line:-1");
+          System.out.println("ram_address:-1");
+          System.out.println("data:"+ theCache.Set[setI][i].Block[offset]);
+          CacheLineUpdate(setI, i);
+          return;
+        }
       }
-
-      System.out.println("Set:"+Integer.parseInt(setS, 2));
-      System.out.println("tag:"+hexAddress(Integer.parseInt(tagS,2), false));
+      int victim = ReplaceLine(setI, tagH, addressInt);
+      System.out.println("write_hit: no");
+      System.out.println("eviction_line:" + victim);
+      System.out.println("ram_address:"+hexAddress);
+      System.out.println("data:"+ theCache.Set[setI][victim].Block[offset]);
       
 
     }
@@ -248,6 +275,71 @@ public class CacheController {
         System.out.println(ramData[i]);
       } 
     }
+
+    /**
+     * Cache Line Update
+     * @param set number
+     * @param line number
+    */
+    public void CacheLineUpdate(int set, int line){
+      if(replacementPolicy == ReplacmentOption.RANDOM_REPLACEMENT){
+        return;
+      }
+      theCache.order[set].remove(line);
+      theCache.order[set].addFirst(line);
+    }
+
+
+    /**
+     * Cache Line Victim 
+     * @param set number
+     * @return victim
+    */
+    public int CacheLineVictim(int set){
+      int victim;
+      if(replacementPolicy == ReplacmentOption.RANDOM_REPLACEMENT){
+        victim = randGen.nextInt(associativity);
+      }else{
+        if(theCache.order[set].size() < associativity){
+          victim = theCache.order[set].size();
+          theCache.order[set].addFirst(victim);
+        }else{
+          victim = theCache.order[set].getLast();
+          theCache.order[set].removeLast();
+          theCache.order[set].addFirst(victim);
+        }
+      }
+      return victim;
+    }
+
+
+    /**
+     * Replace Line
+     * replaces the line based on the replacement policy
+     * @param set int
+     * @param tag String
+     * @param ram address
+     * @return line evicted
+    */
+    public int ReplaceLine(int set, String tag, int address){
+      int victim = CacheLineVictim(set);
+      
+
+      theCache.Set[set][victim].tag = tag;
+      theCache.Set[set][victim].dirtyBit = false;
+      theCache.Set[set][victim].validBit = true;
+
+      int starter = ((int)Math.floor(address /8.0))*8;
+      int j = 0;
+      for(int i = starter; i < starter+8; i++ ){
+        theCache.Set[set][victim].Block[j] = ramData[i];
+        j++;
+      }
+
+      return victim;
+    }
+
+
 
     /**
      * Decimal to Hex

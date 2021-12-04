@@ -64,7 +64,7 @@ class Main {
             CC.MemoryView();
             break;
           case "cache-view":
-            System.out.println("temporary cache-view");
+            CC.CacheView();
             break;
           case "cache-flush":
             System.out.println("temporary cache-flush");
