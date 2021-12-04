@@ -43,16 +43,16 @@ public class CacheController {
          * @param E number of Lines
          * @param B number of Block (bytes)
          */
-        public internalCache(int S, int E, int B, ReplacmentOption r) {
+        public internalCache(int S, int E, int B, ReplacementOption r) {
             Set = new CacheLine[S][E];
             for(int i = 0; i < S; i++){
               for(int j = 0; j < E; j++){
                 Set[i][j] = new CacheLine(B);
               }
             }
-            if(r == ReplacmentOption.LEAST_RECENTLY_USE){
+            if(r == ReplacementOption.LEAST_RECENTLY_USED){
               order = new LinkedList[S];
-              for(int i =0;i < S; i++){
+              for(int i = 0; i < S; i++){
                 order[i] = new LinkedList<Integer>();
               }
             }
@@ -62,8 +62,8 @@ public class CacheController {
     /**
      * Enum for different options
      */
-    private enum ReplacmentOption {
-        NONE, RANDOM_REPLACEMENT, LEAST_RECENTLY_USE
+    private enum ReplacementOption {
+        NONE, RANDOM_REPLACEMENT, LEAST_RECENTLY_USED
     }
 
     private enum WriteHitOption {
@@ -83,7 +83,7 @@ public class CacheController {
     private int tagBits;
     private int blockOffsetBits;
     private int setIndex;
-    private ReplacmentOption replacementPolicy;
+    private ReplacementOption replacementPolicy;
     private WriteHitOption writeHitPolicy;
     private WriteMissOption writeMissPolicy;
     private internalCache theCache;
@@ -102,7 +102,7 @@ public class CacheController {
         cacheSize = ccfig.GetCacheSizeBytes();
         dataBlockSize = ccfig.GetBlockBytes();
         associativity = ccfig.GetAssociativity();
-        replacementPolicy = ReplacmentOption.values()[ccfig.GetReplacementPolicy()];
+        replacementPolicy = ReplacementOption.values()[ccfig.GetReplacementPolicy()];
         writeHitPolicy = WriteHitOption.values()[(ccfig.GetWriteHitPolicy())];
         writeMissPolicy = WriteMissOption.values()[(ccfig.GetWriteMissPolicy())];
         ramSize = ccfig.GetRamSize();
@@ -169,7 +169,7 @@ public class CacheController {
       System.out.println("tag:"+tagH);
 
 
-      for(int i =0; i< associativity; i++){
+      for(int i = 0; i < associativity; i++){
         if(tagH.equals(theCache.Set[setI][i].tag)){
           System.out.println("write_hit: yes");
           System.out.println("eviction_line:-1");
@@ -232,18 +232,40 @@ public class CacheController {
      *
     */
     public void CacheView() {
-        // just some partial work
         System.out.println("cache_size:" + cacheSize);
         System.out.println("data_block_size:" + dataBlockSize);
         System.out.println("associativity:" + associativity);
-        System.out.println("replacement_policy:");
-        System.out.println("write_hit_policy:");
-        System.out.println("write_miss_policy:");
-        System.out.println("number_of_cache_hits:");
+        System.out.print("replacement_policy:");
+            if (replacementPolicy == ReplacementOption.NONE) System.out.println("none");
+            if (replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT) System.out.println("random_replacement");
+            if (replacementPolicy == ReplacementOption.LEAST_RECENTLY_USED) System.out.println("least_recently_used");
+        System.out.print("write_hit_policy:");
+            if (writeHitPolicy == WriteHitOption.NONE) System.out.println("none");
+            if (writeHitPolicy == WriteHitOption.WRITE_THROUGH) System.out.println("write_through");
+            if (writeHitPolicy == WriteHitOption.WRITE_BACK) System.out.println("write_back");
+        System.out.print("write_miss_policy:");
+            if (writeMissPolicy == WriteMissOption.NONE) System.out.println("none");
+            if (writeMissPolicy == WriteMissOption.WRITE_ALLOCATE) System.out.println("write_allocate");
+            if (writeMissPolicy == WriteMissOption.NO_WRITE_ALLOCATE) System.out.println("no_write_allocate");
+        System.out.println("number_of_cache_hits:"); // still needs implementation
         System.out.println("number_of_cache_misses:");
         System.out.println("cache_content:");
-
-        // needs dirty bit?
+            int S = theCache.Set.length;
+            int E = theCache.Set[0].length;
+            int B = theCache.Set[0][0].Block.length;
+            for (int i=0; i<S; i++) {
+                for (int j=0; i<E; j++) {
+                    System.out.print(Bool2Int(theCache.Set[i][j].validBit) + " ");
+                    System.out.print(Bool2Int(theCache.Set[i][j].dirtyBit) + " ");
+                    System.out.print(theCache.Set[i][j].tag + " ");
+                    for (int l=0; l<B; l++) {
+                        System.out.print(theCache.Set[i][j].Block[l]);
+                        if (l != B-1) System.out.print(" ");
+                    }
+                    if (j == E-1) System.out.print("\n");
+                    else System.out.print("  ");
+                }
+            }
     }
 
     /**
@@ -282,7 +304,7 @@ public class CacheController {
      * @param line number
     */
     public void CacheLineUpdate(int set, int line){
-      if(replacementPolicy == ReplacmentOption.RANDOM_REPLACEMENT){
+      if(replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT){
         return;
       }
       theCache.order[set].remove(line);
@@ -297,7 +319,7 @@ public class CacheController {
     */
     public int CacheLineVictim(int set){
       int victim;
-      if(replacementPolicy == ReplacmentOption.RANDOM_REPLACEMENT){
+      if(replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT){
         victim = randGen.nextInt(associativity);
       }else{
         if(theCache.order[set].size() < associativity){
@@ -377,5 +399,17 @@ public class CacheController {
     */
     static String Int2Bin(int num){
       return String.format("%8s", Integer.toBinaryString(num)).replace(' ', '0');
+    }
+
+    /**
+     * Boolean to Integer
+     * <p>
+     * Accepts a boolean and returns the value as an integer
+     * @param boolean 
+     * @return num Int
+    */
+    static int Bool2Int(boolean b) {
+        if (b == false) return 0;
+        else return 1;
     }
 }
