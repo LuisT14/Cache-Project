@@ -29,6 +29,7 @@ public class CacheController {
             }
             public boolean validBit;
             public boolean dirtyBit; // new
+            public int address;
             public String tag;
             public String[] Block;
         }
@@ -196,8 +197,62 @@ public class CacheController {
      * @param String Adress (8-bit)
      * @param String data (1 byte)
      */
-    public void CacheWrite(String address, String data) {
-      
+    public void CacheWrite(String hexAddress, String data) {
+
+      int addressInt = Integer.parseInt(hexAddress.substring(2), 16);
+      String addressBin = Int2Bin(addressInt);
+      String tagS = addressBin.substring(0,tagBits);
+      String setS = addressBin.substring(tagBits, tagBits+setIndex);
+      String blockS = addressBin.substring(tagBits+setIndex);
+      int setI = Integer.parseInt(setS,2);
+      String tagH = Int2Hex(Integer.parseInt(tagS,2),false);
+      int offset = Integer.parseInt(blockS,2);
+      int CacheHitLine = -1;
+
+      for(int i = 0; i < associativity; i++){
+          if(tagH.equals(theCache.Set[setI][i].tag)){
+            CacheHitLine = i;
+            break;
+          }
+      }
+
+      System.out.println("set:"+setI);
+      System.out.println("tag:"+tagH);
+      System.out.println("write_hit:"+((CacheHitLine == -1) ? "no": "yes"));
+
+      if(CacheHitLine == -1){
+        if(writeMissPolicy == WriteMissOption.WRITE_ALLOCATE){
+          System.out.println("ram_address:"+hexAddress);
+          System.out.println("data:"+data);
+          System.out.println("dirty_bit:1");
+          CacheHitLine =ReplaceLine(setI, tagS, addressInt);
+          theCache.Set[setI][CacheHitLine].Block[offset] = data;
+          theCache.Set[setI][CacheHitLine].dirtyBit = true;
+        }else{
+          ramData[addressInt] = data;
+          System.out.println("ram_address:"+hexAddress);
+          System.out.println("data:"+data);
+          System.out.println("dirty_bit:0");
+        }
+      }else{
+        if(writeHitPolicy == WriteHitOption.WRITE_THROUGH){
+          System.out.println("ram_address:"+"-1");
+          System.out.println("data:"+data);
+          System.out.println("dirty_bit:1");
+          ramData[addressInt] = data;
+          theCache.Set[setI][CacheHitLine].Block[offset] = data;
+          theCache.Set[setI][CacheHitLine].dirtyBit = true;
+          CacheLineUpdate(setI, CacheHitLine);
+        }else{
+          System.out.println("ram_address:"+"-1");
+          System.out.println("data:"+data);
+          System.out.println("dirty_bit:1");
+          theCache.Set[setI][CacheHitLine].Block[offset] = data;
+          theCache.Set[setI][CacheHitLine].dirtyBit = true;
+          CacheLineUpdate(setI, CacheHitLine);
+        }
+      }
+
     }
 
     /**
@@ -334,6 +389,19 @@ public class CacheController {
       return victim;
     }
 
+    /**
+     * Save to Ram
+     * Saves the given Set and Cacheline to the Ram
+     * @param set (int)
+     * @param line (int)
+    */
+    private void SaveToRam(int set, int line){
+      int j =0;
+      for(int i = theCache.Set[set][line].address; i < (theCache.Set[set][line].address + 8);i++ ){
+        ramData[i] = theCache.Set[set][line].Block[j];
+        j++;
+      }
+    }
 
     /**
      * Replace Line
@@ -346,12 +414,16 @@ public class CacheController {
     public int ReplaceLine(int set, String tag, int address){
       int victim = CacheLineVictim(set);
       
+      if(theCache.Set[set][victim].validBit && theCache.Set[set][victim].dirtyBit){
+        SaveToRam(set, victim);
+      }
 
       theCache.Set[set][victim].tag = tag;
       theCache.Set[set][victim].dirtyBit = false;
       theCache.Set[set][victim].validBit = true;
 
       int starter = ((int)Math.floor(address /8.0))*8;
+      theCache.Set[set][victim].address = starter;
       int j = 0;
       for(int i = starter; i < starter+8; i++ ){
         theCache.Set[set][victim].Block[j] = ramData[i];

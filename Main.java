@@ -76,7 +76,8 @@ class Main {
                 CC.CacheRead(command.substring(11));
                 break;
               } else if (command_substring.equals("cache-write")) {
-                System.out.println("temporary cache-write");
+                String[] splitoff = command.split(" ");
+                CC.CacheWrite(splitoff[1], splitoff[2]);
                 break;
               }
             }
