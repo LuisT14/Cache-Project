@@ -110,7 +110,7 @@ public class CacheController {
 
         // Some Setup :)
         setSize = cacheSize / (dataBlockSize * associativity);
-        setIndex = (int)(Math.log(associativity)/Math.log(2));
+        setIndex = (int)(Math.log(setSize)/Math.log(2));
         blockOffsetBits = (int)( Math.log(dataBlockSize) / Math.log(2));
         tagBits = ((int)(Math.log(ramSize)/Math.log(2))) - (setIndex + blockOffsetBits);
         ramData = new String[ramSize];
@@ -208,6 +208,7 @@ public class CacheController {
       String tagH = Int2Hex(Integer.parseInt(tagS,2),false);
       int offset = Integer.parseInt(blockS,2);
       int CacheHitLine = -1;
+      data = data.substring(2);
 
       for(int i = 0; i < associativity; i++){
           if(tagH.equals(theCache.Set[setI][i].tag)){
@@ -362,7 +363,7 @@ public class CacheController {
       if(replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT){
         return;
       }
-      theCache.order[set].remove(line);
+      theCache.order[set].removeFirstOccurrence(line);
       theCache.order[set].addFirst(line);
     }
 
@@ -413,7 +414,7 @@ public class CacheController {
     */
     public int ReplaceLine(int set, String tag, int address){
       int victim = CacheLineVictim(set);
-      
+
       if(theCache.Set[set][victim].validBit && theCache.Set[set][victim].dirtyBit){
         SaveToRam(set, victim);
       }
