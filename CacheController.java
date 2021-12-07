@@ -90,6 +90,8 @@ public class CacheController {
     private WriteMissOption writeMissPolicy;
     private internalCache theCache;
     private String[] ramData;
+    private int cacheHit = 0;
+    private int cacheMiss = 0;
     Random randGen = new Random(123123123);
 
     /**
@@ -158,9 +160,9 @@ public class CacheController {
     public void CacheRead(String hexAddress) {
       int addressInt = Integer.parseInt(hexAddress.substring(2), 16);
       String addressBin = Int2Bin(addressInt);
-      String tagS = addressBin.substring(0,tagBits);
-      String setS = addressBin.substring(tagBits, tagBits+setIndex);
-      String blockS = addressBin.substring(tagBits+setIndex);
+      String tagS = ((tagBits == 0) ? "0" : addressBin.substring(0,tagBits)  );
+      String setS = ((setIndex == 0) ? "0" : addressBin.substring(tagBits, tagBits+setIndex));
+      String blockS =((blockOffsetBits == 0) ? "0" : addressBin.substring(tagBits+setIndex));
       int setI = Integer.parseInt(setS,2);
       String tagH = Int2Hex(Integer.parseInt(tagS,2),false);
       int offset = Integer.parseInt(blockS,2);
@@ -171,6 +173,7 @@ public class CacheController {
 
       for(int i = 0; i < associativity; i++){
         if(tagH.equals(theCache.Set[setI][i].tag)){
+          cacheHit++;
           System.out.println("write_hit: yes");
           System.out.println("eviction_line:-1");
           System.out.println("ram_address:-1");
@@ -180,6 +183,7 @@ public class CacheController {
         }
       }
       int victim = ReplaceLine(setI, tagH, addressInt);
+      cacheMiss++;
       System.out.println("write_hit: no");
       System.out.println("eviction_line:" + victim);
       System.out.println("ram_address:"+hexAddress);
@@ -200,9 +204,9 @@ public class CacheController {
 
       int addressInt = Integer.parseInt(hexAddress.substring(2), 16);
       String addressBin = Int2Bin(addressInt);
-      String tagS = addressBin.substring(0,tagBits);
-      String setS = addressBin.substring(tagBits, tagBits+setIndex);
-      String blockS = addressBin.substring(tagBits+setIndex);
+      String tagS = ((tagBits == 0) ? "0" : addressBin.substring(0,tagBits)  );
+      String setS = ((setIndex == 0) ? "0" : addressBin.substring(tagBits, tagBits+setIndex));
+      String blockS =((blockOffsetBits == 0) ? "0" : addressBin.substring(tagBits+setIndex));
       int setI = Integer.parseInt(setS,2);
       String tagH = Int2Hex(Integer.parseInt(tagS,2),false);
       int offset = Integer.parseInt(blockS,2);
@@ -221,6 +225,7 @@ public class CacheController {
       System.out.println("write_hit:"+((CacheHitLine == -1) ? "no": "yes"));
 
       if(CacheHitLine == -1){
+        cacheMiss++;
         if(writeMissPolicy == WriteMissOption.WRITE_ALLOCATE){
           System.out.println("ram_address:"+hexAddress);
           System.out.println("data:"+data);
@@ -235,6 +240,7 @@ public class CacheController {
           System.out.println("dirty_bit:0");
         }
       }else{
+        cacheHit++;
         if(writeHitPolicy == WriteHitOption.WRITE_THROUGH){
           System.out.println("ram_address:"+"-1");
           System.out.println("data:"+data);
@@ -266,7 +272,7 @@ public class CacheController {
         int tag_length = theCache.Set[0][0].tag.length();
         int block_length = theCache.Set[0][0].Block[0].length();
         for (int i=0; i<S; i++) {
-            for (int j=0; i<E; j++) {
+            for (int j=0; j<E; j++) {
                 theCache.Set[i][j].validBit = false;
                 theCache.Set[i][j].dirtyBit = false;
                 theCache.Set[i][j].tag = "";
@@ -276,6 +282,7 @@ public class CacheController {
                     for (int m=0; m<block_length; m++) theCache.Set[i][j].Block[l] += "0";
                 }
             }
+            theCache.order[i].clear();
         }
         System.out.println("cache-cleared");
     }
@@ -301,8 +308,8 @@ public class CacheController {
             if (writeMissPolicy == WriteMissOption.NONE) System.out.println("none");
             if (writeMissPolicy == WriteMissOption.WRITE_ALLOCATE) System.out.println("write_allocate");
             if (writeMissPolicy == WriteMissOption.NO_WRITE_ALLOCATE) System.out.println("no_write_allocate");
-        System.out.println("number_of_cache_hits:"); // still needs implementation
-        System.out.println("number_of_cache_misses:");
+        System.out.println("number_of_cache_hits:"+cacheHit); 
+        System.out.println("number_of_cache_misses:"+cacheMiss);
         System.out.println("cache_content:");
             int S = theCache.Set.length;
             int E = theCache.Set[0].length;
@@ -311,9 +318,9 @@ public class CacheController {
                 for (int j=0; j<E; j++) {
                     System.out.print(Bool2Int(theCache.Set[i][j].validBit) + " ");
                     System.out.print(Bool2Int(theCache.Set[i][j].dirtyBit) + " ");
-                    System.out.print(theCache.Set[i][j].tag + " ");
+                    System.out.print(Hex2Hex(theCache.Set[i][j].tag) + " ");
                     for (int l=0; l<B; l++) {
-                        System.out.print(theCache.Set[i][j].Block[l]);
+                        System.out.print( ((theCache.Set[i][j].Block[l] == null ) ? "00" : theCache.Set[i][j].Block[l]) );
                         if (l != B-1) System.out.print(" ");
                     }
                     if (j == E-1) System.out.print("\n");
@@ -345,7 +352,14 @@ public class CacheController {
      *
     */
     public void CacheDump(){
-        // placeholder
+        for(int i =0; i < setSize; i++){
+          for(int j = 0; j < associativity; j++ ){
+            for(int z = 0; z < dataBlockSize; z++){
+              System.out.println(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
+            }
+          }
+          System.out.println();
+        }
     }
 
     /**
@@ -381,8 +395,13 @@ public class CacheController {
     public int CacheLineVictim(int set){
       int victim;
       if(replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT){
+        for(int i = 0;i < associativity;i++){
+          if(theCache.Set[set][i].tag.equals("")){
+            victim = i;
+            return victim;
+          }
+        }
         victim = randGen.nextInt(associativity);
-        // if(repl)
       } else {
         if(theCache.order[set].size() < associativity){
           victim = theCache.order[set].size();
@@ -440,7 +459,15 @@ public class CacheController {
       return victim;
     }
 
-
+    /**
+     * Hex to Nice Hex 
+     * formats the Hex number with 0z
+     * @param Hex String
+     * @return Hex String
+    */
+    static String Hex2Hex(String hexString){
+      return ((hexString.length() == 2) ? hexString : ((hexString.length() == 1) ? "0" + hexString : "00") );
+    }
 
     /**
      * Decimal to Hex

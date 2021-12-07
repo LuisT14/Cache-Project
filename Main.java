@@ -1,4 +1,4 @@
-import java.util.Scanner;
+ import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.File;
@@ -58,8 +58,7 @@ class Main {
             CC.MemoryDump();
             break;
           case "cache-dump":
-            System.out.println("temporary cache-dump");
-            //CC.CacheDump();
+            CC.CacheDump();
             break;
           case "memory-view":
             CC.MemoryView();
@@ -69,7 +68,7 @@ class Main {
             break;
           case "cache-flush":
             System.out.println("temporary cache-flush");
-            //CC.CacheFlush();
+            CC.CacheFlush();
             break;
           default:
             if (command.length() >= 11) {
