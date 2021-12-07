@@ -19,6 +19,7 @@ public class CacheController {
      * <p>
      * The internal data structured used by the controller to manage the cache data
      */
+    @SuppressWarnings("unchecked") 
     private class internalCache {
         public class CacheLine {
             public CacheLine(int num){

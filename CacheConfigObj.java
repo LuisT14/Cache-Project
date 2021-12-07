@@ -26,21 +26,33 @@ public class CacheConfigObj {
     public void start() {
         Scanner theSetup = new Scanner(System.in);
         System.out.println("*** Welcome to the cache simulator ***\ninitialize the RAM:");
-        String ramString = theSetup.nextLine();
-        parseRam(ramString);
+        
+        String ramString = theSetup.nextLine(); 
+        while(!parseRam(ramString)) {ramString = theSetup.nextLine();}
         System.out.println("configure the cache: ");
+
         System.out.print("cache size: ");
         cacheSizeBytes = theSetup.nextInt();
+
         System.out.print("data block size: ");
         blockBytes = theSetup.nextInt();
+
         System.out.print("associativity: ");
         associativity = theSetup.nextInt();
+        while(associativity !=1 || associativity !=2 || associativity !=4) {System.out.print("ERROR: invalid associativity\nassociativity: "); associativity = theSetup.nextInt();}
+
         System.out.print("replacement policy: ");
         replacementPolicy = theSetup.nextInt();
+        while(replacementPolicy > 2 || replacementPolicy < 1) {System.out.print("ERROR: invalid replacement Policy\nreplacement policy: "); replacementPolicy = theSetup.nextInt();}
+
         System.out.print("write hit policy: ");
         writeHitPolicy = theSetup.nextInt();
+        while(writeHitPolicy > 2 || writeHitPolicy < 1) {System.out.print("ERROR: invalid write hit Policy\nrwrite hit policy: "); writeHitPolicy = theSetup.nextInt();}
+
         System.out.print("write miss policy: ");
         writeMissPolicy = theSetup.nextInt();
+        while(writeMissPolicy > 2 || writeMissPolicy < 1) {System.out.print("ERROR: invalid write miss Policy\nwrite miss policy: "); writeMissPolicy = theSetup.nextInt();}
+
         System.out.println("cache successfully configured!");
     }
 
@@ -49,16 +61,21 @@ public class CacheConfigObj {
      * 
      * @param String input string given by the user
      */
-    public void parseRam(String s) {
+    public boolean parseRam(String s) {
         String[] splitoff = s.split(" ");
         if (splitoff.length == 3) {
             if (splitoff[0].equals("ram-init")) {
                 int s1 = Integer.parseInt(splitoff[1].substring(2), 16);
                 int s2 = Integer.parseInt(splitoff[2].substring(2), 16);
                 RAM = (s2 - s1)+1;
-                System.out.println("RAM successfully initialized!");
+                if(RAM < 256){
+                  System.out.println("RAM successfully initialized!");
+                  return true;
+                }
             }
         }
+        System.out.println("ERROR: invalid RAM argument");
+        return false;
     }
 
     /**
