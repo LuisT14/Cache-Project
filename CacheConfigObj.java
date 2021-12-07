@@ -39,7 +39,7 @@ public class CacheConfigObj {
 
         System.out.print("associativity: ");
         associativity = theSetup.nextInt();
-        while(associativity !=1 || associativity !=2 || associativity !=4) {System.out.print("ERROR: invalid associativity\nassociativity: "); associativity = theSetup.nextInt();}
+        while(associativity !=1 && associativity !=2 && associativity !=4) {System.out.print("ERROR: invalid associativity\nassociativity: "); associativity = theSetup.nextInt();}
 
         System.out.print("replacement policy: ");
         replacementPolicy = theSetup.nextInt();
@@ -64,12 +64,12 @@ public class CacheConfigObj {
     public boolean parseRam(String s) {
         String[] splitoff = s.split(" ");
         if (splitoff.length == 3) {
-            if (splitoff[0].equals("ram-init")) {
+            if (splitoff[0].equals("init-ram")) {
                 int s1 = Integer.parseInt(splitoff[1].substring(2), 16);
                 int s2 = Integer.parseInt(splitoff[2].substring(2), 16);
                 RAM = (s2 - s1)+1;
-                if(RAM < 256){
-                  System.out.println("RAM successfully initialized!");
+                if(RAM <= 256){
+                  System.out.println("RAM successfully initialized!\n");
                   return true;
                 }
             }

@@ -36,7 +36,7 @@ class Main {
       String command_substring;
       boolean invalid_input = false;
       do {
-        System.out.println("*** Cache simulator menu ***");
+        System.out.println("\n*** Cache simulator menu ***");
         System.out.println("type one command:");
         System.out.println("1. cache-read");
         System.out.println("2. cache-write");
@@ -46,7 +46,7 @@ class Main {
         System.out.println("6. cache-dump");
         System.out.println("7. memory-dump");
         System.out.println("8. quit");
-        System.out.println("****************************");
+        System.out.println("****************************\n");
 
         command = userInput.nextLine();
 
@@ -59,6 +59,7 @@ class Main {
             break;
           case "cache-dump":
             System.out.println("temporary cache-dump");
+            //CC.CacheDump();
             break;
           case "memory-view":
             CC.MemoryView();
@@ -68,6 +69,7 @@ class Main {
             break;
           case "cache-flush":
             System.out.println("temporary cache-flush");
+            //CC.CacheFlush();
             break;
           default:
             if (command.length() >= 11) {
@@ -81,6 +83,7 @@ class Main {
                 break;
               }
             }
+            invalid_input = true;
             break;
         }
 

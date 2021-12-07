@@ -109,7 +109,7 @@ public class CacheController {
         writeMissPolicy = WriteMissOption.values()[(ccfig.GetWriteMissPolicy())];
         ramSize = ccfig.GetRamSize();
 
-        // Some Setup :)
+        // Some Setup
         setSize = cacheSize / (dataBlockSize * associativity);
         setIndex = (int)(Math.log(setSize)/Math.log(2));
         blockOffsetBits = (int)( Math.log(dataBlockSize) / Math.log(2));
@@ -142,8 +142,6 @@ public class CacheController {
             }catch(Exception e){
                 System.out.println("An error occured while reading the file!");
             }
-            
-            System.out.println("RAM successfully initialized!");
             in.close();
         }catch(Exception e){
             System.out.println("File could not be read!");
@@ -254,7 +252,6 @@ public class CacheController {
           CacheLineUpdate(setI, CacheHitLine);
         }
       }
-
     }
 
     /**
@@ -311,7 +308,7 @@ public class CacheController {
             int E = theCache.Set[0].length;
             int B = theCache.Set[0][0].Block.length;
             for (int i=0; i<S; i++) {
-                for (int j=0; i<E; j++) {
+                for (int j=0; j<E; j++) {
                     System.out.print(Bool2Int(theCache.Set[i][j].validBit) + " ");
                     System.out.print(Bool2Int(theCache.Set[i][j].dirtyBit) + " ");
                     System.out.print(theCache.Set[i][j].tag + " ");
@@ -331,7 +328,6 @@ public class CacheController {
      * Takes a peek at ram and displays along with size
     */
     public void MemoryView(){
-      System.out.println("memory-view");
       System.out.println("memory_size:" + ramSize);
       System.out.print("memory_content:");
       for(int i = 0; i < ramData.length; i++){
@@ -344,12 +340,20 @@ public class CacheController {
     }
 
     /**
+     * Cache Dump
+     * <p>
+     *
+    */
+    public void CacheDump(){
+        // placeholder
+    }
+
+    /**
      * Memory Dump
      * <p>
      * Dump raw contents of memory stored in the object
     */
     public void MemoryDump(){
-      System.out.print("memory-dump");
       for(int i = 0; i < ramData.length; i++){
         System.out.println(ramData[i]);
       } 
@@ -378,11 +382,12 @@ public class CacheController {
       int victim;
       if(replacementPolicy == ReplacementOption.RANDOM_REPLACEMENT){
         victim = randGen.nextInt(associativity);
-      }else{
+        // if(repl)
+      } else {
         if(theCache.order[set].size() < associativity){
           victim = theCache.order[set].size();
           theCache.order[set].addFirst(victim);
-        }else{
+        } else {
           victim = theCache.order[set].getLast();
           theCache.order[set].removeLast();
           theCache.order[set].addFirst(victim);
