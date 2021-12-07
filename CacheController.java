@@ -355,10 +355,10 @@ public class CacheController {
         for(int i =0; i < setSize; i++){
           for(int j = 0; j < associativity; j++ ){
             for(int z = 0; z < dataBlockSize; z++){
-              System.out.println(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
+              System.out.print(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
             }
+            System.out.println();
           }
-          System.out.println();
         }
     }
 

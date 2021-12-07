@@ -9,7 +9,7 @@ import java.io.File;
  * @author Luis Trejo
  * @author Jared Miscisin
  */
-class Main {
+class cachesimulator {
   public static void main(String[] args) {
     boolean hasfile = false;
 
