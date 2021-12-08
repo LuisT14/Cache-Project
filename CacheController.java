@@ -170,7 +170,7 @@ public class CacheController {
       int offset = Integer.parseInt(blockS,2);
 
       System.out.println("set:"+setI);
-      System.out.println("tag:"+tagH);
+      System.out.println("tag:"+Hex2Hex(tagH));
 
 
       for(int i = 0; i < associativity; i++){
@@ -179,7 +179,7 @@ public class CacheController {
           System.out.println("write_hit: yes");
           System.out.println("eviction_line:-1");
           System.out.println("ram_address:-1");
-          System.out.println("data:"+ theCache.Set[setI][i].Block[offset]);
+          System.out.println("data:0x" +theCache.Set[setI][i].Block[offset]);
           CacheLineUpdate(setI, i);
           return;
         }
@@ -189,7 +189,7 @@ public class CacheController {
       System.out.println("write_hit: no");
       System.out.println("eviction_line:" + victim);
       System.out.println("ram_address:"+hexAddress);
-      System.out.println("data:"+ theCache.Set[setI][victim].Block[offset]);
+      System.out.println("data:0x"+ theCache.Set[setI][victim].Block[offset]);
       
 
     }
@@ -223,29 +223,38 @@ public class CacheController {
       }
 
       System.out.println("set:"+setI);
-      System.out.println("tag:"+tagH);
+      System.out.println("tag:"+Hex2Hex(tagH));
       System.out.println("write_hit:"+((CacheHitLine == -1) ? "no": "yes"));
 
       if(CacheHitLine == -1){
         cacheMiss++;
         if(writeMissPolicy == WriteMissOption.WRITE_ALLOCATE){
-          System.out.println("ram_address:"+hexAddress);
-          System.out.println("data:"+data);
-          System.out.println("dirty_bit:1");
           CacheHitLine =ReplaceLine(setI, tagS, addressInt);
           theCache.Set[setI][CacheHitLine].Block[offset] = data;
-          theCache.Set[setI][CacheHitLine].dirtyBit = true;
+          System.out.println("ram_address:"+hexAddress);
+          System.out.println("data:0x"+data);
+
+          if(writeHitPolicy == WriteHitOption.WRITE_THROUGH){
+            System.out.println("dirty_bit:0");
+            ramData[addressInt] = data;
+            theCache.Set[setI][CacheHitLine].dirtyBit = false;
+
+          }else{
+            System.out.println("dirty_bit:1");
+            theCache.Set[setI][CacheHitLine].dirtyBit = true;
+          }
+
         }else{
           ramData[addressInt] = data;
           System.out.println("ram_address:"+hexAddress);
-          System.out.println("data:"+data);
+          System.out.println("data:0x"+data);
           System.out.println("dirty_bit:0");
         }
       }else{
         cacheHit++;
         if(writeHitPolicy == WriteHitOption.WRITE_THROUGH){
           System.out.println("ram_address:"+"-1");
-          System.out.println("data:"+data);
+          System.out.println("data:0x"+data);
           System.out.println("dirty_bit:"+Bool2Int(theCache.Set[setI][CacheHitLine].dirtyBit));
           ramData[addressInt] = data;
           theCache.Set[setI][CacheHitLine].Block[offset] = data;
@@ -253,7 +262,7 @@ public class CacheController {
           CacheLineUpdate(setI, CacheHitLine);
         }else{
           System.out.println("ram_address:"+"-1");
-          System.out.println("data:"+data);
+          System.out.println("data:0x"+data);
           System.out.println("dirty_bit:1");
           theCache.Set[setI][CacheHitLine].Block[offset] = data;
           theCache.Set[setI][CacheHitLine].dirtyBit = true;
@@ -385,7 +394,6 @@ public class CacheController {
             for(int i = 0; i < ramSize; i++){
                 System.out.println(ramData[i]);
                 fileWriter.write(ramData[i]);
-                //if (i != ramData.length-1) fileWriter.write("\n");
                 if (i != 255) fileWriter.write("\n");
             }
             for(int i= ramSize; i < 256;i++){
@@ -474,7 +482,7 @@ public class CacheController {
       theCache.Set[set][victim].dirtyBit = false;
       theCache.Set[set][victim].validBit = true;
 
-      int starter = ((int)Math.floor(address /8.0))*8;
+      int starter = ((int)Math.floor(address / 8.0))*8;
       theCache.Set[set][victim].address = starter;
       int j = 0;
       for(int i = starter; i < starter+8; i++ ){
