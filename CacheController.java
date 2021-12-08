@@ -139,7 +139,7 @@ public class CacheController {
             String line;
             int i = 0;
             try{
-                while ((line = br.readLine()) != null) {
+                while (((line = br.readLine()) != null) && (i < ramSize)) {
                     ramData[i] = line;
                     i++;
                 }
@@ -246,10 +246,10 @@ public class CacheController {
         if(writeHitPolicy == WriteHitOption.WRITE_THROUGH){
           System.out.println("ram_address:"+"-1");
           System.out.println("data:"+data);
-          System.out.println("dirty_bit:1");
+          System.out.println("dirty_bit:"+Bool2Int(theCache.Set[setI][CacheHitLine].dirtyBit));
           ramData[addressInt] = data;
           theCache.Set[setI][CacheHitLine].Block[offset] = data;
-          theCache.Set[setI][CacheHitLine].dirtyBit = true;
+          //theCache.Set[setI][CacheHitLine].dirtyBit = true;
           CacheLineUpdate(setI, CacheHitLine);
         }else{
           System.out.println("ram_address:"+"-1");
@@ -382,10 +382,16 @@ public class CacheController {
         String filename = "ram.txt";
         try{
             Writer fileWriter = new FileWriter(filename, false);
-            for(int i = 0; i < ramData.length; i++){
+            for(int i = 0; i < ramSize; i++){
                 System.out.println(ramData[i]);
                 fileWriter.write(ramData[i]);
-                if (i != ramData.length-1) fileWriter.write("\n");
+                //if (i != ramData.length-1) fileWriter.write("\n");
+                if (i != 255) fileWriter.write("\n");
+            }
+            for(int i= ramSize; i < 256;i++){
+              System.out.println("00");
+              fileWriter.write("00");
+              if (i != 255) fileWriter.write("\n");
             }
             fileWriter.close();
         }catch(Exception e){
