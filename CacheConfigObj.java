@@ -32,26 +32,26 @@ public class CacheConfigObj {
         System.out.println("configure the cache: ");
 
         System.out.print("cache size: ");
-        cacheSizeBytes = theSetup.nextInt();
+        cacheSizeBytes = Integer.parseInt(theSetup.nextLine());
 
         System.out.print("data block size: ");
-        blockBytes = theSetup.nextInt();
+        blockBytes =  Integer.parseInt(theSetup.nextLine());
 
         System.out.print("associativity: ");
-        associativity = theSetup.nextInt();
-        while(associativity !=1 && associativity !=2 && associativity !=4) {System.out.print("ERROR: invalid associativity\nassociativity: "); associativity = theSetup.nextInt();}
+        associativity = Integer.parseInt(theSetup.nextLine());
+        while(associativity !=1 && associativity !=2 && associativity !=4) {System.out.print("ERROR: invalid associativity\nassociativity: "); associativity =  Integer.parseInt(theSetup.nextLine());}
 
         System.out.print("replacement policy: ");
-        replacementPolicy = theSetup.nextInt();
-        while(replacementPolicy > 2 || replacementPolicy < 1) {System.out.print("ERROR: invalid replacement Policy\nreplacement policy: "); replacementPolicy = theSetup.nextInt();}
+        replacementPolicy = Integer.parseInt(theSetup.nextLine());
+        while(replacementPolicy > 2 || replacementPolicy < 1) {System.out.print("ERROR: invalid replacement Policy\nreplacement policy: "); replacementPolicy =  Integer.parseInt(theSetup.nextLine());}
 
         System.out.print("write hit policy: ");
-        writeHitPolicy = theSetup.nextInt();
-        while(writeHitPolicy > 2 || writeHitPolicy < 1) {System.out.print("ERROR: invalid write hit Policy\nrwrite hit policy: "); writeHitPolicy = theSetup.nextInt();}
+        writeHitPolicy =  Integer.parseInt(theSetup.nextLine());
+        while(writeHitPolicy > 2 || writeHitPolicy < 1) {System.out.print("ERROR: invalid write hit Policy\nrwrite hit policy: "); writeHitPolicy =  Integer.parseInt(theSetup.nextLine());}
 
         System.out.print("write miss policy: ");
-        writeMissPolicy = theSetup.nextInt();
-        while(writeMissPolicy > 2 || writeMissPolicy < 1) {System.out.print("ERROR: invalid write miss Policy\nwrite miss policy: "); writeMissPolicy = theSetup.nextInt();}
+        writeMissPolicy =  Integer.parseInt(theSetup.nextLine());
+        while(writeMissPolicy > 2 || writeMissPolicy < 1) {System.out.print("ERROR: invalid write miss Policy\nwrite miss policy: "); writeMissPolicy =  Integer.parseInt(theSetup.nextLine());}
 
         System.out.println("cache successfully configured!");
     }
@@ -69,7 +69,7 @@ public class CacheConfigObj {
                 int s2 = Integer.parseInt(splitoff[2].substring(2), 16);
                 RAM = (s2 - s1)+1;
                 if(RAM <= 256){
-                  System.out.println("RAM successfully initialized!\n");
+                  System.out.println("RAM successfully initialized!");
                   return true;
                 }
             }

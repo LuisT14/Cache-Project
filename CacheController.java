@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.lang.Math;
 import java.util.Random;
 import java.util.LinkedList;
+import java.io.FileWriter;
+import java.io.Writer;
 
 /**
  * Cache Controller does all the actions It uses the {@link CacheConfigObj} to
@@ -92,7 +94,7 @@ public class CacheController {
     private String[] ramData;
     private int cacheHit = 0;
     private int cacheMiss = 0;
-    Random randGen = new Random(123123123);
+    //Random randGen = new Random(123123123);
 
     /**
      * Constructor for CacheController
@@ -270,7 +272,6 @@ public class CacheController {
         int E = theCache.Set[0].length;
         int B = theCache.Set[0][0].Block.length;
         int tag_length = theCache.Set[0][0].tag.length();
-        int block_length = theCache.Set[0][0].Block[0].length();
         for (int i=0; i<S; i++) {
             for (int j=0; j<E; j++) {
                 theCache.Set[i][j].validBit = false;
@@ -278,11 +279,12 @@ public class CacheController {
                 theCache.Set[i][j].tag = "";
                 for (int k=0; k<tag_length; k++) theCache.Set[i][j].tag += "0";
                 for (int l=0; l<B; l++) {
-                    theCache.Set[i][j].Block[l] = "";
-                    for (int m=0; m<block_length; m++) theCache.Set[i][j].Block[l] += "0";
+                    theCache.Set[i][j].Block[l] = null;
                 }
             }
-            theCache.order[i].clear();
+            if(replacementPolicy == ReplacementOption.LEAST_RECENTLY_USED){
+              theCache.order[i].clear();
+            }
         }
         System.out.println("cache-cleared");
     }
@@ -352,13 +354,22 @@ public class CacheController {
      *
     */
     public void CacheDump(){
-        for(int i =0; i < setSize; i++){
-          for(int j = 0; j < associativity; j++ ){
-            for(int z = 0; z < dataBlockSize; z++){
-              System.out.print(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
+        String filename = "cache.txt";
+        try{
+            Writer fileWriter = new FileWriter(filename, false);
+            for(int i =0; i < setSize; i++){
+              for(int j = 0; j < associativity; j++ ){
+                for(int z = 0; z < dataBlockSize; z++){
+                  System.out.print(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
+                  fileWriter.write(((theCache.Set[i][j].Block[z]==null)? "00": theCache.Set[i][j].Block[z]) + " ");
+                }
+                System.out.println();
+                fileWriter.write("\n");
+              }
             }
-            System.out.println();
-          }
+            fileWriter.close();
+        }catch(Exception e){
+          System.out.println("Could not write to file");
         }
     }
 
@@ -368,9 +379,18 @@ public class CacheController {
      * Dump raw contents of memory stored in the object
     */
     public void MemoryDump(){
-      for(int i = 0; i < ramData.length; i++){
-        System.out.println(ramData[i]);
-      } 
+        String filename = "ram.txt";
+        try{
+            Writer fileWriter = new FileWriter(filename, false);
+            for(int i = 0; i < ramData.length; i++){
+                System.out.println(ramData[i]);
+                fileWriter.write(ramData[i]);
+                if (i != ramData.length-1) fileWriter.write("\n");
+            }
+            fileWriter.close();
+        }catch(Exception e){
+          System.out.println("Could not Write to file");
+        }
     }
 
     /**
@@ -401,7 +421,7 @@ public class CacheController {
             return victim;
           }
         }
-        victim = randGen.nextInt(associativity);
+        victim = 0;
       } else {
         if(theCache.order[set].size() < associativity){
           victim = theCache.order[set].size();

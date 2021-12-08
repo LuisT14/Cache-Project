@@ -1,4 +1,4 @@
- import java.util.Scanner;
+import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.File;
@@ -36,7 +36,7 @@ class cachesimulator {
       String command_substring;
       boolean invalid_input = false;
       do {
-        System.out.println("\n*** Cache simulator menu ***");
+        System.out.println("*** Cache simulator menu ***");
         System.out.println("type one command:");
         System.out.println("1. cache-read");
         System.out.println("2. cache-write");
@@ -46,7 +46,7 @@ class cachesimulator {
         System.out.println("6. cache-dump");
         System.out.println("7. memory-dump");
         System.out.println("8. quit");
-        System.out.println("****************************\n");
+        System.out.println("****************************");
 
         command = userInput.nextLine();
 
@@ -67,7 +67,6 @@ class cachesimulator {
             CC.CacheView();
             break;
           case "cache-flush":
-            System.out.println("temporary cache-flush");
             CC.CacheFlush();
             break;
           default:
