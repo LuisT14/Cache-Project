@@ -349,7 +349,7 @@ public class CacheController {
       System.out.println("memory_size:" + ramSize);
       System.out.print("memory_content:");
       for(int i = 0; i < ramData.length; i++){
-        if(i % 8 == 0){
+        if(i % dataBlockSize == 0){
           System.out.print("\n"+ Int2Hex(i) + " ");
         }
         System.out.print(ramData[i] + " ");
@@ -457,7 +457,7 @@ public class CacheController {
     */
     private void SaveToRam(int set, int line){
       int j =0;
-      for(int i = theCache.Set[set][line].address; i < (theCache.Set[set][line].address + 8);i++ ){
+      for(int i = theCache.Set[set][line].address; i < (theCache.Set[set][line].address + dataBlockSize);i++ ){
         ramData[i] = theCache.Set[set][line].Block[j];
         j++;
       }
@@ -482,10 +482,10 @@ public class CacheController {
       theCache.Set[set][victim].dirtyBit = false;
       theCache.Set[set][victim].validBit = true;
 
-      int starter = ((int)Math.floor(address / 8.0))*8;
+      int starter = ((int)Math.floor(1.0 * address / dataBlockSize))*dataBlockSize;
       theCache.Set[set][victim].address = starter;
       int j = 0;
-      for(int i = starter; i < starter+8; i++ ){
+      for(int i = starter; i < starter+dataBlockSize; i++ ){
         theCache.Set[set][victim].Block[j] = ramData[i];
         j++;
       }
